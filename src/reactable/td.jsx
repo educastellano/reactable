@@ -13,6 +13,7 @@ export class Td extends React.Component {
     render() {
         var tdProps = {
             className: this.props.className,
+            style: this.props.style,
             onClick: this.handleClick.bind(this)
         };
 

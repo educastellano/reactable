@@ -440,6 +440,7 @@ window.ReactDOM["default"] = window.ReactDOM;
             value: function render() {
                 var tdProps = {
                     className: this.props.className,
+                    style: this.props.style,
                     onClick: this.handleClick.bind(this)
                 };
 
