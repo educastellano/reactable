@@ -996,7 +996,7 @@ window.ReactDOM["default"] = window.ReactDOM;
                 currentPage: 0,
                 currentSort: {
                     column: null,
-                    direction: 1
+                    direction: this.props.defaultSortDescending ? -1 : 1
                 },
                 filter: ''
             };
@@ -1173,15 +1173,17 @@ window.ReactDOM["default"] = window.ReactDOM;
                         } else if (column.direction === -1 || column.direction === 'desc') {
                             sortDirection = -1;
                         } else {
-                            console.warn('Invalid default sort specified.  Defaulting to ascending');
-                            sortDirection = 1;
+                            var defaultDirection = this.props.defaultSortDescending ? 'descending' : 'ascending';
+
+                            console.warn('Invalid default sort specified. Defaulting to ' + defaultDirection);
+                            sortDirection = this.props.defaultSortDescending ? -1 : 1;
                         }
                     } else {
-                        sortDirection = 1;
+                        sortDirection = this.props.defaultSortDescending ? -1 : 1;
                     }
                 } else {
                     columnName = column;
-                    sortDirection = 1;
+                    sortDirection = this.props.defaultSortDescending ? -1 : 1;
                 }
 
                 return {
@@ -1288,14 +1290,14 @@ window.ReactDOM["default"] = window.ReactDOM;
                     currentSort.direction *= -1;
                 } else {
                     currentSort.column = column;
-                    currentSort.direction = 1;
+                    currentSort.direction = this.props.defaultSortDescending ? -1 : 1;
                 }
 
                 // Set the current sort and pass it to the sort function
                 this.setState({ currentSort: currentSort });
                 this.sortByCurrentSort();
 
-                if (this.props.onSort) {
+                if (typeof this.props.onSort === 'function') {
                     this.props.onSort(currentSort);
                 }
             }
@@ -1423,6 +1425,9 @@ window.ReactDOM["default"] = window.ReactDOM;
                         filtering: filtering,
                         onFilter: function (filter) {
                             _this.setState({ filter: filter });
+                            if (_this.props.onFilter) {
+                                _this.props.onFilter(filter);
+                            }
                         },
                         filterPlaceholder: this.props.filterPlaceholder,
                         currentFilter: this.state.filter,
@@ -1456,6 +1461,7 @@ window.ReactDOM["default"] = window.ReactDOM;
     Table.defaultProps = {
         sortBy: false,
         defaultSort: false,
+        defaultSortDescending: false,
         itemsPerPage: 0,
         filterBy: '',
         hideFilterInput: false
