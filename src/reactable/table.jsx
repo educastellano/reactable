@@ -259,7 +259,21 @@ export class Table extends React.Component {
             return;
         }
 
-        this.data.sort(function(a, b){
+        // Remove child rows for sorting
+        //  * Tr must have 'id' and 'mother' props for this feature.
+        let children = new Map()
+        let data = this.data.filter((tr, index) => {
+            let mother = tr.props.mother
+            if (mother) {
+                children.set(mother, children.get(mother) || [])
+                children.get(mother).push(tr)
+            }
+            return !mother
+        })
+
+        // Sort
+        //
+        data.sort(function(a, b){
             let keyA = extractDataFrom(a, currentSort.column);
             keyA = isUnsafe(keyA) ? keyA.toString() : keyA || '';
             let keyB = extractDataFrom(b, currentSort.column);
@@ -290,6 +304,16 @@ export class Table extends React.Component {
                 }
             }
         }.bind(this));
+
+        // Put child rows back
+        // 
+        this.data = []
+        for (let tr of data) {
+            this.data.push(tr)
+            if (tr.props.id && children.has(tr.props.id)) {
+                this.data = this.data.concat(children.get(tr.props.id))
+            }
+        }
     }
 
     onSort(column) {

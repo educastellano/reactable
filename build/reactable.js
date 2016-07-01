@@ -1247,7 +1247,21 @@ window.ReactDOM["default"] = window.ReactDOM;
                     return;
                 }
 
-                this.data.sort((function (a, b) {
+                // Remove child rows for sorting
+                //  * Tr must have 'id' and 'mother' props for this feature.
+                var children = new Map();
+                var data = this.data.filter(function (tr, index) {
+                    var mother = tr.props.mother;
+                    if (mother) {
+                        children.set(mother, children.get(mother) || []);
+                        children.get(mother).push(tr);
+                    }
+                    return !mother;
+                });
+
+                // Sort
+                //
+                data.sort((function (a, b) {
                     var keyA = (0, _libExtract_data_from.extractDataFrom)(a, currentSort.column);
                     keyA = (0, _unsafe.isUnsafe)(keyA) ? keyA.toString() : keyA || '';
                     var keyB = (0, _libExtract_data_from.extractDataFrom)(b, currentSort.column);
@@ -1275,6 +1289,37 @@ window.ReactDOM["default"] = window.ReactDOM;
                         }
                     }
                 }).bind(this));
+
+                // Put child rows back
+                //
+                this.data = [];
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var tr = _step.value;
+
+                        this.data.push(tr);
+                        if (tr.props.id && children.has(tr.props.id)) {
+                            this.data = this.data.concat(children.get(tr.props.id));
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator['return']) {
+                            _iterator['return']();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
             }
         }, {
             key: 'onSort',
